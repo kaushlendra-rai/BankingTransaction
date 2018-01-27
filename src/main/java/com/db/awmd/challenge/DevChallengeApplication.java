@@ -10,8 +10,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @SpringBootApplication
 @ComponentScan
-//@EnableAsync(mode = AdviceMode.ASPECTJ)
-//@EnableAsync
 public class DevChallengeApplication {
 
   public static void main(String[] args) {
