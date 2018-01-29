@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -228,6 +229,10 @@ public class TransactionControllerTest {
 		  
 		  assertThat(new BigDecimal("900")).isEqualTo(account123.getBalance());
 		  assertThat(new BigDecimal("2100")).isEqualTo(accountAbc.getBalance());
+		  
+		  // Validate the 'Location' header for newly created Job resource 
+		  String locationHeader = mvcResult.getResponse().getHeader(HttpHeaders.LOCATION);
+		  assertThat(locationHeader).isNotNull();
 	  }
 	  
 	  @Test
@@ -262,6 +267,59 @@ public class TransactionControllerTest {
 	  
 	  @Test
 	  public void initiateTransactionsInParallelFromSameSourceToSameTarget() throws Exception{
+		  String accountId1 = "123";
+		  String accountId2 = "abc";
+		  
+		  String amount1 = "5000";
+		  String amount2 = "4000";
+		  String transactionAmount = "100";
+		  
+		  createTestAccountsForTransaction(accountId1, amount1);
+		  createTestAccountsForTransaction(accountId2, amount2);
+		  
+		  ExecutorService executor = Executors.newFixedThreadPool(5);//creating a pool of 5 threads  
+		  Set<String> transactionJobIds = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		  
+		  int parallelTransactionCount = 10;
+		  for(int i=0; i < parallelTransactionCount; i++) {
+			  Runnable task = () -> { 
+				  try{
+					  transactionJobIds.add(initiateTransaction(accountId1, accountId2, transactionAmount)); 
+				  }catch(Exception e) {}};
+				  
+			  executor.execute(task);
+		  }
+		  
+		  // Since Job are running in parallel, we need to wait till all jobs have been initiated in their threads.
+		  // Only after that we should try to get transaction and account status.
+		  while(transactionJobIds.size() < parallelTransactionCount) {
+			  try {
+				  Thread.sleep(200);
+			  }catch(Exception e) {
+				  log.error("Exception while sleeping", e);
+			  }
+		  }
+		  
+		  // .Since all jobs are running in parallel threads, we need to poll job status in main thread to verify transactions are complete prior to checking account balances. 
+		  for(String transactionJobId : transactionJobIds) {
+			  TransactionJob transactionJob = getTransactionJobStatus(transactionJobId);
+			  
+			  validateTransactionJobStatusAsSuccess(transactionJob);
+		  }
+		  
+		  // Ensure the consistency of account after transactions
+		  Account account1 = this.accountsService.getAccount(accountId1);
+		  Account account2 = this.accountsService.getAccount(accountId2);
+		  
+		  log.info("Source account balance {}", account1.getBalance());
+		  log.info("Target account balance {}", account2.getBalance());
+		  
+		  assertThat(new BigDecimal("4000")).isEqualTo(account1.getBalance());
+		  assertThat(new BigDecimal("5000")).isEqualTo(account2.getBalance());
+	  }
+	  
+	  @Test
+	  public void initiateTransactionsInParallelBetweenMultipleAccounts() throws Exception{
 		  String accountId1 = "123";
 		  String accountId2 = "abc";
 		  

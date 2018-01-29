@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,10 +46,14 @@ public class TransactionController {
 	    else
 	    	System.out.println(fundsTransferRequest.getSourceAccountId());
 	    TransactionJob transactionJob = null;
+	    HttpHeaders headers = new HttpHeaders();
 	    try {
 	    	transactionJob = transactionService.transferFunds(fundsTransferRequest);
 	    	log.info("Transaction initiated : {}", transactionJob.getTransactionJobId());
 	    	addHATEOASLinksForJob(transactionJob, "transactionJobStatus");
+	    	
+	    	// Add Location header for newly created resource
+			headers.add(HttpHeaders.LOCATION, transactionJob.getLinks().get(0).getRel());
 	    }catch(ResourceException e) {
 	    	return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
 	    }catch(Throwable t) {
@@ -56,7 +61,7 @@ public class TransactionController {
 	    	return new ResponseEntity<>("An internal server error occured.", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
 	    
-	    return new ResponseEntity<>(transactionJob, HttpStatus.OK);
+	    return new ResponseEntity<>(transactionJob, headers, HttpStatus.OK);
 	}
 
 	
