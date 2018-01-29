@@ -86,8 +86,8 @@ public class FundsTransferManager {
 			
 			// After successful debit, remove the source account from active transaction set.
 			// This will allow another debit from the account if a transaction is initiated again.
-			activeTransactionSet.remove(transactionJob.getSourceAccountId());
 			sendNotification(transactionDO.getSourceAccountId(), "Account number: " + transactionDO.getSourceAccountId() + " debited by amount : INR " + transactionDO.getAmount());
+			activeTransactionSet.remove(transactionJob.getSourceAccountId());
 		}
 	}
 	
@@ -105,7 +105,6 @@ public class FundsTransferManager {
 					activeTransactionSet.add(transactionJob.getTargetAccountId());
 				}
 			}
-			
 			TransactionDO transactionDO = TransactionUtil.convertTransactionJobToTransactionDO(transactionJob);
 			accountsService.creditTargetAccountForTransaction(transactionDO);
 			
@@ -115,9 +114,8 @@ public class FundsTransferManager {
 			
 			// After successful credit, remove the source account from active transaction set.
 			// This will allow another credit from the account if a transaction is initiated again.
-			activeTransactionSet.remove(transactionJob.getTargetAccountId());
-			
 			sendNotification(transactionDO.getSourceAccountId(), "Account number: " + transactionDO.getTargetAccountId() + " credited with amount : INR " + transactionDO.getAmount());
+			activeTransactionSet.remove(transactionJob.getTargetAccountId());
 		}
 	}
 	
