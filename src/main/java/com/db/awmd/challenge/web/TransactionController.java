@@ -33,9 +33,9 @@ public class TransactionController {
 	
 
 	/**
-	 * 
-	 * @param fundsTransferRequest
-	 * @return
+	 * Initiate a transaction between two accounts for a given amount.
+	 * @param fundsTransferRequest The request object encapsulation the transaction request.
+	 * @return An instance of TransactionJob which corresponds to an async job created to cater to transaction request.
 	 */
 	@RequestMapping(value = "/jobs", produces = {TransactionJob.MEDIA_TYPE_JSON,
 			MediaType.APPLICATION_JSON_VALUE },consumes={FundsTransferRequest.MEDIA_TYPE_JSON}, method = RequestMethod.POST)
@@ -66,9 +66,9 @@ public class TransactionController {
 
 	
 	/**
-	 * 
-	 * @param transactionJobId
-	 * @return
+	 * Get the TransactionJob for a given transaction job id.
+	 * @param transactionJobId The transaction id for which the details are to be retrieved.
+	 * @return An instance of TransactionJob corresponding to the transactionJobId.
 	 */
 	@RequestMapping(value = "/jobs/{transactionJobId}", produces = { TransactionJob.MEDIA_TYPE_JSON,
 			MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
@@ -90,9 +90,9 @@ public class TransactionController {
 	}
 	  
 	/**
-	 * 
-	 * @param transactionJob
-	 * @param rel
+	 * Adds the HATEOAS links to the REST response.
+	 * @param transactionJob The transaction Job to which the links are to be added.
+	 * @param rel The name for the link being added.
 	 */
 	private void addHATEOASLinksForJob(TransactionJob transactionJob, String rel) {
 		List<Link> links = new ArrayList<Link>();

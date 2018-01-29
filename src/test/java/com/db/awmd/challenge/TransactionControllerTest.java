@@ -210,9 +210,10 @@ public class TransactionControllerTest {
 		  TransactionJob transactionJob = mapper.readValue(response, new TypeReference<TransactionJob>() {});
 		  log.info("JobId {}" , transactionJob.getTransactionJobId());
 	    
-		  while(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS)) {
+		  // Poll until transaction completes
+		  while(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS) || transactionJob.getTransactionStatus().equals(TransactionStatus.DEBIT_SUCCESS)) {
 			  transactionJob = getTransactionJobStatus(transactionJob.getTransactionJobId());
-			  if(!(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS))) {
+			  if(!(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS)  || transactionJob.getTransactionStatus().equals(TransactionStatus.DEBIT_SUCCESS))) {
 				  assertThat(TransactionStatus.SUCCESS).isEqualTo(transactionJob.getTransactionStatus());
 				  break;
 			  }
@@ -426,10 +427,10 @@ public class TransactionControllerTest {
 	  }
 	  
 	  private String validateTransactionJobStatusAsSuccess(TransactionJob transactionJob) throws Exception{
-		 
-		  while(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS)) {
+		  // Poll until transaction completes
+		  while(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS)  || transactionJob.getTransactionStatus().equals(TransactionStatus.DEBIT_SUCCESS)) {
 			  transactionJob = getTransactionJobStatus(transactionJob.getTransactionJobId());
-			  if(!(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS))) {
+			  if(!(transactionJob.getTransactionStatus().equals(TransactionStatus.IN_PROGRESS)  || transactionJob.getTransactionStatus().equals(TransactionStatus.DEBIT_SUCCESS))) {
 				  assertThat(TransactionStatus.SUCCESS).isEqualTo(transactionJob.getTransactionStatus());
 				  break;
 			  }

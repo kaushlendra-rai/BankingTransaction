@@ -39,7 +39,7 @@ public class TransactionJob {
 	}
 	
 	public enum TransactionStatus {
-		SUCCESS("Success"), FAILED("Failed"), INSUFFICIENT_FUNDS("Insufficient Funds"), IN_PROGRESS("In Progress"),
+		SUCCESS("Success"), FAILED("Failed"), INSUFFICIENT_FUNDS("Insufficient Funds"), DEBIT_SUCCESS("Source Account Debited"), IN_PROGRESS("In Progress"),
 		TRANSACTION_TIMEOUT("Transaction timeout");
 
 		private String stringVal;

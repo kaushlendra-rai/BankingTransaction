@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,13 @@ public class TransactionServiceTest {
 	
 	@Autowired
 	private AccountsService accountsService;
+	
+	@Before
+	public void prepareMockMvc() {
+		// Reset the existing accounts and transactions before each test.
+		accountsService.getAccountsRepository().clearAccounts();
+		transactionService.clearTransactions();
+	}
 	
 	@Test
 	public void testValidTransaction() throws Exception{

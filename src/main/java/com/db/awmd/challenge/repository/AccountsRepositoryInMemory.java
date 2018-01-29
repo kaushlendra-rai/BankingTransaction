@@ -46,7 +46,15 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
     accounts.clear();
   }
 
+  	
 	@Override
+	/**
+	 * This method is used to actually debit the amount from a source account.
+	 * NOTE:
+	 * 	For the sake of simplicity, I'm not persisting the individual actual transaction of debit. In real system, it would be maintained and the user would be able to see
+	 * 	their transaction history from that table. The table would be responsible for maintaining both credit and debit transaction history.
+	 * The checks for transaction ids would be used for idempotent behavior of re-play of events for debit/credit in evolved event based system.
+	 */
 	public void debitAccountForTransaction(TransactionDO transactionDO) {
 		if(!activeDebitTransactionSet.contains(transactionDO.getTransactionId()) && accounts.get(transactionDO.getSourceAccountId()).getBalance().compareTo(transactionDO.getAmount()) >= 0) {
 			activeDebitTransactionSet.add(transactionDO.getTransactionId());
@@ -57,6 +65,13 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 	}
 	
 	@Override
+	/**
+	 * This method is used to actually credits the amount to the target account.
+	 * NOTE:
+	 * 	For the sake of simplicity, I'm not persisting the individual actual transaction of credit. In real system, it would be maintained and the user would be able to see
+	 * 	their transaction history from that table. The table would be responsible for maintaining both credit and debit transaction history.
+	 * The checks for transaction ids would be used for idempotent behavior of re-play of events for debit/credit in evolved event based system.
+	 */
 	public void creditAccountForTransaction(TransactionDO transactionDO) {
 		if(!activeCreditTransactionSet.contains(transactionDO.getTransactionId())) {
 			activeCreditTransactionSet.add(transactionDO.getTransactionId());

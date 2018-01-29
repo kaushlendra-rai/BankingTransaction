@@ -7,6 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import com.db.awmd.challenge.domain.TransactionDO;
 
+/**
+ * In-memory implementation of the Transaction repository to be used for this application.
+ * @author sinkar
+ *
+ */
 @Repository
 public class TransactionRepositoryInMemory implements TransactionRespository {
 

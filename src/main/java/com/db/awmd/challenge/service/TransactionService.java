@@ -32,30 +32,22 @@ public class TransactionService {
 	@Autowired
 	private FundsTransferManager fundsTransferManager;
 	
-	
+	/**
+	 * Initiate a Funds transfer between source and target account for a specified amount.
+	 * @param fundsTransferRequest The request object for funds transfer.
+	 * @return The TransactionJob corresponding to the async job initiated for transaction.
+	 * @throws ResourceException Exception thrown in case of any validation errors.
+	 */
 	public TransactionJob transferFunds(FundsTransferRequest fundsTransferRequest) throws ResourceException{
 		validateTransferRequest(fundsTransferRequest);
 		
 		TransactionJob transactionJob = persistTransaction(fundsTransferRequest);
 		
-		fundsTransferManager.startAsyncTransaction(transactionJob);
+		fundsTransferManager.startAsyncTransaction(transactionJob, 0);
 		
 		return transactionJob;
 	}
 	
-	public void updateTransactionJob(TransactionDO transactionDO) {
-		
-		if(transactionDO.getTransactionId() == null)
-			throw new ResourceException("Invalid transaction object. transactionId cannot be null or empty", HttpStatus.NOT_FOUND, AccountTransactionErrorCodes.NULL_EMPTY_TRANSACTION_ID);
-		
-		TransactionDO validatedTransactionDO = transactionRespository.findTransactionById(transactionDO.getTransactionId());
-		
-		if(validatedTransactionDO == null)
-			throw new ResourceException("Invalid transaction id " + transactionDO.getTransactionId(), HttpStatus.NOT_FOUND, AccountTransactionErrorCodes.INVALID_TRANSACTION_ID);
-		
-		transactionRespository.updateTransactionJob(transactionDO);
-	}
-
 	private TransactionJob persistTransaction(FundsTransferRequest fundsTransferRequest) {
 		// Create Unique transactionId
 		String transactionJobId = UUID.randomUUID().toString();
@@ -78,7 +70,10 @@ public class TransactionService {
 		return transactionJob;
 	}
 	
-	
+	/**
+	 * Perform basic validations of the funds transfer request.
+	 * @param fundsTransferRequest The request object for funds transfer
+	 */
 	private void validateTransferRequest(FundsTransferRequest fundsTransferRequest) {
 		if(fundsTransferRequest == null) {
 			log.debug("fundsTransferRequest is null");
@@ -106,6 +101,28 @@ public class TransactionService {
 		
 	}
 
+	/**
+	 * Update the Transaction object. It would be typically used to update the job status.
+	 * @param transactionDO The transactionDO to be updated.
+	 */
+	public void updateTransactionJob(TransactionDO transactionDO) {
+		
+		if(transactionDO.getTransactionId() == null)
+			throw new ResourceException("Invalid transaction object. transactionId cannot be null or empty", HttpStatus.NOT_FOUND, AccountTransactionErrorCodes.NULL_EMPTY_TRANSACTION_ID);
+		
+		TransactionDO validatedTransactionDO = transactionRespository.findTransactionById(transactionDO.getTransactionId());
+		
+		if(validatedTransactionDO == null)
+			throw new ResourceException("Invalid transaction id " + transactionDO.getTransactionId(), HttpStatus.NOT_FOUND, AccountTransactionErrorCodes.INVALID_TRANSACTION_ID);
+		
+		transactionRespository.updateTransactionJob(transactionDO);
+	}
+
+	/**
+	 * Get the transactionJob details for a given transaction id.
+	 * @param transactionJobId The transaction job id for which the transaction job is to be returned.
+	 * @return An instance of transaction Job.
+	 */
 	public TransactionJob getTransactionJobStatus(String transactionJobId) {
 		TransactionDO transactionDO = transactionRespository.findTransactionById(transactionJobId);
 		

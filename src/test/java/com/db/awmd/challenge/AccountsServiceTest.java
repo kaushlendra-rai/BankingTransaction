@@ -10,6 +10,8 @@ import com.db.awmd.challenge.exception.DuplicateAccountIdException;
 import com.db.awmd.challenge.exception.ResourceException;
 import com.db.awmd.challenge.service.AccountsService;
 import java.math.BigDecimal;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,12 @@ public class AccountsServiceTest {
   @Autowired
   private AccountsService accountsService;
 
+  @Before
+	public void prepareMockMvc() {
+		// Reset the existing accounts and transactions before each test.
+		accountsService.getAccountsRepository().clearAccounts();
+	}
+  
   @Test
   public void addAccount() throws Exception {
     Account account = new Account("Id-123");

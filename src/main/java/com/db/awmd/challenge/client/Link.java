@@ -20,6 +20,8 @@ public class Link {
      */
     public static final String REL_SELF = "self";
     
+    private int version = 1;
+    
     @NotNull
     @NotEmpty
     private String method;

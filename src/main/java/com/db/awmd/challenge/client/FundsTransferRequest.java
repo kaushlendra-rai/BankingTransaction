@@ -13,7 +13,7 @@ import lombok.Data;
 
 /**
  * Sensitive information like 'source accountId' and 'target accountId' should never be part of URI, hence moved them to 'FundsTransferRequest' 
- * instead of keeping them as a part of URI path.
+ * which would be sent as payload in HTTP POST request instead of keeping them as a part of URI path.
  * @author sinkar
  *
  */
