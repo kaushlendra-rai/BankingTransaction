@@ -322,22 +322,45 @@ public class TransactionControllerTest {
 	  public void initiateTransactionsInParallelBetweenMultipleAccounts() throws Exception{
 		  String accountId1 = "123";
 		  String accountId2 = "abc";
+		  String accountId3 = "456";
+		  String accountId4 = "def";
+		  String accountId5= "789";
+		  String accountId6 = "ghi";
 		  
-		  String amount1 = "5000";
-		  String amount2 = "4000";
-		  String transactionAmount = "100";
+		  String amount1 = "1000";
+		  String amount2 = "2000";
+		  String amount3 = "3000";
+		  String amount4 = "4000";
+		  String amount5 = "5000";
+		  String amount6 = "6000";
+		  
+		  String transactionAmount1 = "50";
+		  String transactionAmount2 = "100";
+		  String transactionAmount3 = "150";
+		  String transactionAmount4 = "200";
+		  String transactionAmount5 = "250";
+		  String transactionAmount6 = "300";
 		  
 		  createTestAccountsForTransaction(accountId1, amount1);
 		  createTestAccountsForTransaction(accountId2, amount2);
+		  createTestAccountsForTransaction(accountId3, amount3);
+		  createTestAccountsForTransaction(accountId4, amount4);
+		  createTestAccountsForTransaction(accountId5, amount5);
+		  createTestAccountsForTransaction(accountId6, amount6);
 		  
 		  ExecutorService executor = Executors.newFixedThreadPool(5);//creating a pool of 5 threads  
 		  Set<String> transactionJobIds = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 		  
-		  int parallelTransactionCount = 10;
+		  int parallelTransactionCount = 5;
 		  for(int i=0; i < parallelTransactionCount; i++) {
 			  Runnable task = () -> { 
 				  try{
-					  transactionJobIds.add(initiateTransaction(accountId1, accountId2, transactionAmount)); 
+					  transactionJobIds.add(initiateTransaction(accountId1, accountId2, transactionAmount1));
+					  transactionJobIds.add(initiateTransaction(accountId2, accountId3, transactionAmount2)); 
+					  transactionJobIds.add(initiateTransaction(accountId3, accountId4, transactionAmount3)); 
+					  transactionJobIds.add(initiateTransaction(accountId4, accountId5, transactionAmount4)); 
+					  transactionJobIds.add(initiateTransaction(accountId5, accountId6, transactionAmount5)); 
+					  transactionJobIds.add(initiateTransaction(accountId6, accountId1, transactionAmount6)); 
 				  }catch(Exception e) {}};
 				  
 			  executor.execute(task);
@@ -345,7 +368,7 @@ public class TransactionControllerTest {
 		  
 		  // Since Job are running in parallel, we need to wait till all jobs have been initiated in their threads.
 		  // Only after that we should try to get transaction and account status.
-		  while(transactionJobIds.size() < parallelTransactionCount) {
+		  while(transactionJobIds.size() < parallelTransactionCount * 6) {
 			  try {
 				  Thread.sleep(200);
 			  }catch(Exception e) {
@@ -363,12 +386,24 @@ public class TransactionControllerTest {
 		  // Ensure the consistency of account after transactions
 		  Account account1 = this.accountsService.getAccount(accountId1);
 		  Account account2 = this.accountsService.getAccount(accountId2);
+		  Account account3 = this.accountsService.getAccount(accountId3);
+		  Account account4 = this.accountsService.getAccount(accountId4);
+		  Account account5 = this.accountsService.getAccount(accountId5);
+		  Account account6 = this.accountsService.getAccount(accountId6);
 		  
 		  log.info("Source account balance {}", account1.getBalance());
 		  log.info("Target account balance {}", account2.getBalance());
+		  log.info("Source account balance {}", account3.getBalance());
+		  log.info("Target account balance {}", account4.getBalance());
+		  log.info("Source account balance {}", account5.getBalance());
+		  log.info("Target account balance {}", account6.getBalance());
 		  
-		  assertThat(new BigDecimal("4000")).isEqualTo(account1.getBalance());
-		  assertThat(new BigDecimal("5000")).isEqualTo(account2.getBalance());
+		  assertThat(new BigDecimal("2250")).isEqualTo(account1.getBalance());
+		  assertThat(new BigDecimal("1750")).isEqualTo(account2.getBalance());
+		  assertThat(new BigDecimal("2750")).isEqualTo(account3.getBalance());
+		  assertThat(new BigDecimal("3750")).isEqualTo(account4.getBalance());
+		  assertThat(new BigDecimal("4750")).isEqualTo(account5.getBalance());
+		  assertThat(new BigDecimal("5750")).isEqualTo(account6.getBalance());
 	  }
 	  
 	  private String initiateTransaction(String account1, String account2, String transactionAmount) throws Exception{
