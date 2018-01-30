@@ -1,7 +1,12 @@
 # BankingTransaction
 The application aims at simulating banking transactions with async jobs and very light locking
 
+In the code, for async job, I have used ThreadPool which needs to be linked to Eventing and EventConsumers in real projects.
+The events triggered can be also maintained as audit logs for transactions and can be referred in case of disputes.
 
+NOTE:
+In the current code 'FundsTransferManager' is kind of doing some critical processing for this project for simplicity.
+Ideally, Async processing for Debit, Credit & Notifications should be handled in their separate classes.
 
 
 Key design elements thought:
