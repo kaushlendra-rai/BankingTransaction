@@ -13,13 +13,13 @@ Key design elements thought:
 1) Instead of taking accountIds in URI for request, I took them in POST payload for data security as accountId is sensitive data.
 
 2) Transaction initiated as an async job. Also, Debit and Credit actions are treated as two separate activities.
-2 a) In order to maintain 'Atomicity' of transaction, for every Debit, there should be only one Credit.
-2 b) Pre-requisite of transaction is a successful Debit. Once a debit is successfully done, we trigger an event for Credit task.
-2 c) At a given point of time, there could be only one transaction (credit/debit) for a given account. This is to ensure consistency. If multiple requests for the same come, trigger an event for the transaction to be processed later.
-2 d) While processing the actual Debit/Credit, ensure that the debit/credit transactions have not been processed earlier too (It could happen debit/credit events either due to some network issue while sending acknowledgement to Event-broker, etc). If processed earlier, ignore the current credit/debit to avoid side-effects of event replay. It is crucial for Idempotency of events for debit and credit tasks.
-2 e) There should be a TRANSACTION_TIMEOUT for transaction which has been in too many re-tries and update job accordingly.
-2 f) Notifications should be sent as an async task only. Any delays in sending notification should not account in deplays of transaction processing.
-2 g) The TransactionStatus to be maintained in Distributed cache along with persistance store. Maintain distributed cache for Job status so that the job status for fresh transactions is served from the cache and thereby saving load on DB. Purge cache which is 1 hour old to maintain cache size.
+	a) In order to maintain 'Atomicity' of transaction, for every Debit, there should be only one Credit.
+	b) Pre-requisite of transaction is a successful Debit. Once a debit is successfully done, we trigger an event for Credit task.
+	c) At a given point of time, there could be only one transaction (credit/debit) for a given account. This is to ensure consistency. If multiple requests for the same come, trigger an event for the transaction to be processed later.
+	d) While processing the actual Debit/Credit, ensure that the debit/credit transactions have not been processed earlier too (It could happen debit/credit events either due to some network issue while sending acknowledgement to Event-broker, etc). If processed earlier, ignore the current credit/debit to avoid side-effects of event replay. It is crucial for Idempotency of events for debit and credit tasks.
+	e) There should be a TRANSACTION_TIMEOUT for transaction which has been in too many re-tries and update job accordingly.
+	f) Notifications should be sent as an async task only. Any delays in sending notification should not account in deplays of transaction processing.
+	g) The TransactionStatus to be maintained in Distributed cache along with persistance store. Maintain distributed cache for Job status so that the job status for fresh transactions is served from the cache and thereby saving load on DB. Purge cache which is 1 hour old to maintain cache size.
 
 3) Having a 'async' transactions help us scale. With async transactions, there is no blocking threads on teh server, thereby giving more room to serve new requests to the Application server.
 4) The real DEBIT/CREDIT transactions could be processed on seperate cluster of nodes which are more event driven. They can be scaled as needed.
@@ -108,3 +108,26 @@ Sample response:
         }
     ]
 }
+
+
+
+
+<b> About Explicit Headers</b>
+An application MUST use explicit media types as far as possbile and so should the consumers of the API. This is to ensure that the consumer/client knows what it is expecting.
+Lets say that for Transaction, we have two Representations:
+1) TransactionJob (Detailed representation containing most of the fields persisted) (Respective media type : "application/com.db.transaction.job+json")
+2) TransactionJobSummary  (Mostly have a smaller set of fields used by UI to show summary of transaction)  (Respective media type : "application/com.db.transaction.job.summary+json")
+
+The TransactionController, we will have two methods for same endpoint but corresponding to two different 'produces' media types)
+
+In above case if for a resource 'v1/transaction/jobs/{jobid}', if a client wants summary of transaction, the provided ACCEPT header would be "application/com.db.transaction.job.summary+json" 
+and for detailed, it would be "application/com.db.transaction.job+json"
+
+Headers:
+Preffered:
+Content-Type : application/com.db.funds.transfer.request+json
+Accept : application/com.db.transaction.job+json
+
+Optionally, users can also ise generic media types for the same:
+Content-Type : application/json
+Accept : application/json

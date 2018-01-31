@@ -7,7 +7,6 @@ bin/
 build-local
 .bak
 
-bin/
 ### STS ###
 .apt_generated
 .classpath
