@@ -1,0 +1,81 @@
+{
+	"variables": [],
+	"info": {
+		"name": "BankingTransaction",
+		"_postman_id": "cec444c3-74f2-5a24-3579-62b55a54ee8f",
+		"description": "BankingTransaction",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "CreateAccount",
+			"request": {
+				"url": "",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": "CreateAccount"
+			},
+			"response": []
+		},
+		{
+			"name": "GetAccount",
+			"request": {
+				"url": "{{accountBase}}/{{accountId}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GetAccount details"
+			},
+			"response": []
+		},
+		{
+			"name": "InitiateTransaction",
+			"request": {
+				"url": "{{transactionBase}}",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/com.db.funds.transfer.request+json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/com.db.transaction.job+json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"sourceAccountId\": \"sonu\",\r\n  \"targetAccountId\": \"rai\",\r\n  \"amount\": 100\r\n}"
+				},
+				"description": "InitiateTransaction"
+			},
+			"response": []
+		},
+		{
+			"name": "GetTransactionJobStatus",
+			"request": {
+				"url": "{{transactionBase}}/{{transactionId}}",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "GetTransactionJobStatus"
+			},
+			"response": []
+		}
+	]
+}
