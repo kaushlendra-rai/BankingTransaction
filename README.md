@@ -42,9 +42,9 @@ http://host:port/v1/transaction/jobs
 HTTP Method: POST
 
 Headers:
-Preffered:
-Content-Type : application/com.db.funds.transfer.request+json
-Accept : application/com.db.transaction.job+json
+Preffered:</br>
+Content-Type : application/com.db.funds.transfer.request+json</br>
+Accept : application/com.db.transaction.job+json</br>
 
 Optionally, users can also ise generic media types for the same:
 Content-Type : application/json
@@ -112,23 +112,23 @@ Sample response:
 
 
 
-<b> About Explicit Headers</b>
+</br><b> About Explicit Headers</b></br>
 An application MUST use explicit media types as far as possbile and so should the consumers of the API. This is to ensure that the consumer/client knows what it is expecting.
 
 Lets say that for Transaction, we have two Representations:
 1) TransactionJob (Detailed representation containing most of the fields persisted) (Respective media type : "application/com.db.transaction.job+json")
 2) TransactionJobSummary  (Mostly have a smaller set of fields used by UI to show summary of transaction)  (Respective media type : "application/com.db.transaction.job.summary+json")
 
-The TransactionController, we will have two methods for same endpoint but corresponding to two different 'produces' media types)
+The TransactionController, we will have two methods for same endpoint but corresponding to two different 'produces' media types.
 
 In above case if for a resource 'v1/transaction/jobs/{jobid}', if a client wants summary of transaction, the provided ACCEPT header would be "application/com.db.transaction.job.summary+json" 
 and for detailed, it would be "application/com.db.transaction.job+json"
 
 Headers:
-Preffered:
-Content-Type : application/com.db.funds.transfer.request+json
-Accept : application/com.db.transaction.job+json
+Preffered:</br>
+Content-Type : application/com.db.funds.transfer.request+json</br>
+Accept : application/com.db.transaction.job+json</br>
 
-Optionally, users can also ise generic media types for the same:
-Content-Type : application/json
+Optionally, users can also ise generic media types for the same:</br>
+Content-Type : application/json</br>
 Accept : application/json
