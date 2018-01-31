@@ -34,6 +34,7 @@ g) The TransactionStatus to be maintained in Distributed cache along with persis
 
 <b>Usage:</b>
 
+Pre-requisites:
 1) Ensure that respective accounts have been created prior to initiation of valid transaction. In below case, ensure accounts for accountId "sonu' & "rai" are already created before initaiting transaction (if not done, you will receive error messages).
 
 2) Initiate transaction to endpoint:
@@ -114,7 +115,6 @@ Sample response:
 
 <b> About Explicit Headers</b>
 An application MUST use explicit media types as far as possbile and so should the consumers of the API. This is to ensure that the consumer/client knows what it is expecting.
-
 Lets say that for Transaction, we have two Representations:
 1) TransactionJob (Detailed representation containing most of the fields persisted) (Respective media type : "application/com.db.transaction.job+json")
 2) TransactionJobSummary  (Mostly have a smaller set of fields used by UI to show summary of transaction)  (Respective media type : "application/com.db.transaction.job.summary+json")
