@@ -38,7 +38,7 @@ public class TransactionController {
 	 * @return An instance of TransactionJob which corresponds to an async job created to cater to transaction request.
 	 */
 	@RequestMapping(value = "/jobs", produces = {TransactionJob.MEDIA_TYPE_JSON,
-			MediaType.APPLICATION_JSON_VALUE },consumes={FundsTransferRequest.MEDIA_TYPE_JSON}, method = RequestMethod.POST)
+			MediaType.APPLICATION_JSON_VALUE },consumes={FundsTransferRequest.MEDIA_TYPE_JSON, MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.POST)
 	public ResponseEntity<Object> startTransaction(@RequestBody FundsTransferRequest fundsTransferRequest) {
 		log.info("Received transaction request {}", fundsTransferRequest);
 	    if(fundsTransferRequest == null)
@@ -97,7 +97,7 @@ public class TransactionController {
 	private void addHATEOASLinksForJob(TransactionJob transactionJob, String rel) {
 		List<Link> links = new ArrayList<Link>();
 		
-		Link jobStatusLink = new Link("Link to get transaction job status", HttpMethod.GET.name(), rel, "/transaction/jobs/"+ transactionJob.getTransactionJobId(),
+		Link jobStatusLink = new Link("Link to get transaction job status", HttpMethod.GET.name(), rel, "/v1/transaction/jobs/"+ transactionJob.getTransactionJobId(),
 				TransactionJob.MEDIA_TYPE_JSON);
 		links.add(jobStatusLink);
 		

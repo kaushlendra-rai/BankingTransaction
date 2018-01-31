@@ -29,3 +29,82 @@ Key design elements thought:
 7) I have used synchronized blocks for finding if any transaction is currently active for an account rther than holding lock for teh entire transaction. In production, we can use a pool (10-100) of distributed Locks hashed over the accountId. This would further reduce the contention on locks as hash on random accountId would get an even distribution in pool of locks.
 8) We should use separate QUEUES for Debit/Credit/Notifications so that they all work in parallel and none of the task over-shadows the other.
 9) The UI/client should use links provided in response to poll for Job status. It can either poll for status being 'DEBIT_SUCCESS' only or 'SUCCESS' (DEBIT & CREDIT) state of job as per the needs of business use case.
+
+
+Usage:
+Initiate transaction:
+Pre-requisites:
+1) Ensure that respective accounts have been created prior to initiation of valid transaction. In below case, ensure accounts for accountId "sonu' & "rai" are already created before initaiting transaction (if not done, you will receive error messages).
+
+2) Initiate transaction to endpoint:
+http://host:port/v1/transaction/jobs
+
+HTTP Method: POST
+
+Headers:
+Preffered:
+Content-Type : application/com.db.funds.transfer.request+json
+Accept : application/com.db.transaction.job+json
+
+Optionally, users can also ise generic media types for the same:
+Content-Type : application/json
+Accept : application/json
+
+
+Sample Payload for initiating transaction:
+{
+  "sourceAccountId": "sonu",
+  "targetAccountId": "rai",
+  "amount": 100
+}
+
+Sample Response:
+{
+    "transactionJobId": "dad705b3-209a-455a-bdbc-dda6db1ae2cf",
+    "version": 1,
+    "transactionStatus": "IN_PROGRESS",
+    "sourceAccountId": "sonu",
+    "targetAccountId": "rai",
+    "amount": 100,
+    "links": [
+        {
+            "version": 1,
+            "method": "GET",
+            "rel": "transactionJobStatus",
+            "uri": "/transaction/jobs/dad705b3-209a-455a-bdbc-dda6db1ae2cf",
+            "type": "application/com.db.transaction.job+json",
+            "title": "Link to get transaction job status"
+        }
+    ]
+}
+
+
+3) Get Job status: Since the transaction is an async job, the client is supposed to poll for the Job status at regular intervals untill the job is SUCCESS or FAILED or TIMED_OUT
+
+http://host:port/v1/transaction/jobs/{jobid}
+
+HTTP Method: GET
+
+{jobId} : It needs to be picked up from the above job link. Infact, the URI in the links should be used for navigation to fetch the status.
+
+Accept : application/com.db.transaction.job+json
+
+Sample response:
+{
+    "transactionJobId": "dad705b3-209a-455a-bdbc-dda6db1ae2cf",
+    "version": 1,
+    "transactionStatus": "SUCCESS",
+    "sourceAccountId": "sonu",
+    "targetAccountId": "rai",
+    "amount": 100,
+    "links": [
+        {
+            "version": 1,
+            "method": "GET",
+            "rel": "self",
+            "uri": "/transaction/jobs/dad705b3-209a-455a-bdbc-dda6db1ae2cf",
+            "type": "application/com.db.transaction.job+json",
+            "title": "Link to get transaction job status"
+        }
+    ]
+}

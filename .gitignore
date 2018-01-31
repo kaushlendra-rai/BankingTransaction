@@ -3,8 +3,9 @@
 !gradle/wrapper/gradle-wrapper.jar
 
 .project
-bin
+bin/
 build-local
+.bak
 
 bin/
 ### STS ###
